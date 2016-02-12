@@ -1,0 +1,135 @@
+Instructions for setting up a clean install of OS X to develop Flambé with Sublime Text for Nickelodeon.
+
+
+
+
+Install this stuff:
+
+	Xcode: https://developer.apple.com/xcode/
+	Sublime Text 3 (in beta as of 2016): http://www.sublimetext.com/3
+	Node.js: https://nodejs.org/en/
+	Java: https://java.com/en/
+	Note: For debugging in Vizzy Flash Tracer in OS X, use Java 6: https://support.apple.com/kb/dl1572?locale=en_US
+
+
+
+
+Haxe 3.2.1 and older do not install into the correct location (/usr/local/lib/haxe/lib) for El Capitan.
+Shell script from https://github.com/HaxeFoundation/haxe/issues/4483 (with a fix):
+
+	#!/bin/sh
+
+	echo “Downloading Neko”
+
+	curl -O http://nekovm.org/media/neko-2.0.0-osx64.tar.gz
+
+	echo “Installing Neko”
+
+	sudo mkdir -p /usr/local/lib/neko
+	sudo tar xvzf neko-2.0.0-osx64.tar.gz -C /usr/local/lib/neko --strip-components=1
+
+	sudo ln -s /usr/local/lib/neko/libneko.dylib /usr/local/lib/libneko.dylib
+	sudo ln -s /usr/local/lib/neko/neko /usr/local/bin/neko
+	sudo ln -s /usr/local/lib/neko/nekoc /usr/local/bin/nekoc
+	sudo ln -s /usr/local/lib/neko/nekotools /usr/local/bin/nekotools
+
+	echo “Downloading Haxe”
+
+	#Current version:
+	#curl -O http://haxe.org/website-content/downloads/3.2.1/downloads/haxe-3.2.1-osx.tar.gz
+	#Version used by Nickelodeon:
+	curl -O http://haxe.org/website-content/downloads/3.1.3/downloads/haxe-3.1.3-osx.tar.gz
+
+	echo “Installing Haxe”
+
+	sudo mkdir -p /usr/local/lib/haxe
+
+	#Also change this to match version:
+	sudo tar xvzf haxe-3.1.3-osx.tar.gz -C /usr/local/lib/haxe --strip-components=1
+
+	sudo ln -s /usr/local/lib/haxe/haxe /usr/local/bin/haxe
+	sudo ln -s /usr/local/lib/haxe/haxelib /usr/local/bin/haxelib
+
+	sudo mkdir -p /usr/local/lib/haxe/lib
+	sudo chmod -R 777 /usr/local/lib/haxe/lib
+	haxelib setup /usr/local/haxe/lib
+
+
+
+
+Install Flambe https://github.com/aduros/flambe/wiki/Installation:
+
+	sudo npm install -g flambe
+	sudo chmod 777 /usr/local/haxe/lib/
+	flambe update
+
+
+
+
+Use Git to install nightly version of Flambé into /usr/local/haxe/lib/flambe/nightly, and set development directory to that:
+	
+	cd /usr/local/haxe/lib/flambe
+	git clone https://github.com/aduros/flambe.git nightly
+	cd nightly
+	sudo npm link ./command
+	haxelib dev flambe ./src
+
+
+
+
+Set Format to v3.2.0:
+
+	haxelib set format 3.2.0
+
+
+
+
+Install package control into Sublime Text 3 (make sure you are using v3).
+
+	https://packagecontrol.io/installation
+
+
+
+
+Install Haxe Sublime Bundle:
+
+	cd ~/Library/Application\ Support/Sublime\ Text\ 3/Packages
+	git clone https://github.com/clemos/haxe-sublime-bundle.git Haxe
+
+
+
+
+Fix mac path for Sublime Text:
+https://github.com/int3h/SublimeFixMacPath
+
+	git clone https://github.com/int3h/SublimeFixMacPath.git ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/FixMacPath
+
+
+
+
+Install Nick SDK:
+Get password from your project manager.
+
+	sudo haxelib git nicksdk https://v-sarahclifford@stash.mtvi.com/scm/ngrd/haxe_games_sdk_public master src/
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
