@@ -5,6 +5,7 @@ import flambe.Entity;
 import flambe.SpeedAdjuster;
 import flambe.System;
 import flambe.animation.Ease;
+import flambe.display.FillSprite;
 import flambe.display.ImageSprite;
 import flambe.display.PatternSprite;
 import flambe.display.Sprite;
@@ -51,6 +52,8 @@ class JellyLevelModel extends Component
 		owner.addChild(_worldLayer);
 
 		//add scrolling water background
+		var background = new FillSprite(0x03A3B3, System.stage.width + 32, System.stage.height);
+        _worldLayer.addChild(new Entity().add(background));
 
 		//add everything to world layer
 		_worldLayer.addChild(_coralLayer = new Entity());
@@ -66,7 +69,7 @@ class JellyLevelModel extends Component
             new Delay(1.5),
             new CallFunction(function () {
                 var coral = new ImageSprite(_ctx.pack.getTexture("jelly/coral"))
-                    .centerAnchor().setAlpha(0.5);
+                    .centerAnchor().setAlpha(0.9);
                 coral.setXY(Math.random() * System.stage.width, -coral.getNaturalHeight()/2);
                 worldScript.run(new Sequence([
                     new AnimateTo(coral.y, System.stage.height+coral.getNaturalHeight()/2, 10+6*Math.random()),
@@ -76,5 +79,92 @@ class JellyLevelModel extends Component
             }),
         ])));
 
+        //add player character
+
+        // Create the player
+        var jelly = new Character(_ctx, "playerjelly", 5, 3);
+        jelly.destroyed.connect(function () {
+            // When the player dies, show an explosion
+            var sprite = player.get(Sprite);
+            //explode(sprite.x._, sprite.y._);
+
+            // Adjust the speed of the world for a dramatic slow motion effect
+            var worldSpeed = new SpeedAdjuster(0.5);
+            _worldLayer.add(worldSpeed);
+
+            // Then show the game over prompt after a moment
+            var script = new Script();
+            script.run(new Sequence([
+                new AnimateTo(worldSpeed.scale, 0, 1.5),
+                new CallFunction(function () {
+                    _ctx.showPrompt(_ctx.messages.get("game_over", [score._]), [
+                        "Replay", function () {
+                            _ctx.enterPlayingScene(false);
+                        },
+                        "Home", function () {
+                            _ctx.director.popScene();
+                            _ctx.enterHomeScene();
+                        },
+                    ]);
+                }),
+            ]));
+            owner.add(script);
+        });
+
+        player = new Entity().add(jelly);
+        _planeLayer.addChild(player);
+        _friendlies = [player];
+
+        // Start the player near the bottom of the screen
+        player.get(Sprite).setXY(System.stage.width/2, 0.8*System.stage.height);
+
 	}
+
+	override public function onUpdate (dt :Float)
+    {
+        var pointerX = System.pointer.x;
+        var pointerY = System.pointer.y;
+
+        // If the player is using a touch screen, offset a bit so that the plane isn't obscurred by
+        // their finger
+        if (System.touch.supported) {
+            pointerY -= 80;
+        }
+
+        // Move towards the pointer position at a fixed speed
+        var sprite = player.get(Sprite);
+        if (sprite != null) {
+            var dx = pointerX - sprite.x._;
+            var dy = pointerY - sprite.y._;
+            var distance = Math.sqrt(dx*dx + dy*dy);
+
+            var travel = PLAYER_SPEED * dt;
+            if (travel < distance) {
+                sprite.x._ += travel * dx/distance;
+                sprite.y._ += travel * dy/distance;
+            } else {
+                sprite.x._ = pointerX;
+                sprite.y._ = pointerY;
+            }
+        }
+
+        // Remove offscreen enemies
+        /*
+        var ii = 0;
+        while (ii < _enemies.length) {
+            var enemy = _enemies[ii];
+            var sprite = enemy.get(Sprite);
+            var radius = enemy.get(Character).radius;
+
+            if (sprite.x._ < -radius || sprite.x._ > System.stage.width+radius ||
+                sprite.y._ < -radius || sprite.y._ > System.stage.height+radius) {
+
+                _enemies.splice(ii, 1);
+                enemy.dispose();
+            } else {
+                ++ii;
+            }
+        }
+        */
+    }
 }

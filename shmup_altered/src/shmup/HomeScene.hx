@@ -19,7 +19,7 @@ class HomeScene
     {
         var scene = new Entity();
 
-        var background = new FillSprite(0x202020, System.stage.width, System.stage.height);
+        var background = new FillSprite(0x03A3B3, System.stage.width, System.stage.height);
         scene.addChild(new Entity().add(background));
 
         var titlejelly = new ImageSprite(ctx.pack.getTexture("jelly/titlejelly"));

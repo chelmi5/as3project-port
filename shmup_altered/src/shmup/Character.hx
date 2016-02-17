@@ -32,7 +32,7 @@ class Character extends Component
 
     override public function onAdded ()
     {
-        var normal = _ctx.pack.getTexture("planes/"+_name);
+        var normal = _ctx.pack.getTexture("jelly/"+_name);
         var sprite = owner.get(ImageSprite);
         if (sprite == null) {
             owner.add(sprite = new ImageSprite(normal));
