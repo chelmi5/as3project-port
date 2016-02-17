@@ -72,7 +72,7 @@ class JellyLevelModel extends Component
                     .centerAnchor().setAlpha(0.9);
                 coral.setXY(Math.random() * System.stage.width, -coral.getNaturalHeight()/2);
                 worldScript.run(new Sequence([
-                    new AnimateTo(coral.y, System.stage.height+coral.getNaturalHeight()/2, 10+6*Math.random()),
+                    new AnimateTo(coral.y, System.stage.height+coral.getNaturalHeight()/2, 10+8*Math.random()),
                     new CallFunction(coral.dispose),
                 ]));
                 _coralLayer.addChild(new Entity().add(coral));
@@ -128,7 +128,7 @@ class JellyLevelModel extends Component
         // If the player is using a touch screen, offset a bit so that the plane isn't obscurred by
         // their finger
         if (System.touch.supported) {
-            pointerY -= 80;
+            pointerY -= 50;
         }
 
         // Move towards the pointer position at a fixed speed
