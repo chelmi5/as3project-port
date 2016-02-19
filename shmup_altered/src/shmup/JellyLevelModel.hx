@@ -46,6 +46,7 @@ class JellyLevelModel extends Component
 	{
 		_ctx = ctx;
 		_enemies = [];
+        _friendlies = [];
 		score = new Value<Int>(0);
 	}
 
@@ -105,7 +106,7 @@ class JellyLevelModel extends Component
 
         player = new Entity().add(jelly);
         _characterLayer.addChild(player);
-        _friendlies = [player];
+        //_friendlies = [player];
 
         // Start the player near the bottom of the screen
         player.get(Sprite).setXY(System.stage.width/2, 0.8*System.stage.height);
@@ -124,7 +125,6 @@ class JellyLevelModel extends Component
 
                 var rand = Math.random();
                 if (rand < 0.3) {
-                    // A quick enemy that strafes from one side of the screen to the other
                     var left = Math.random() < 0.5;
                     var speed = Math.random()*100 + 150;
                     enemy
@@ -134,7 +134,6 @@ class JellyLevelModel extends Component
                     sprite.setXY(left ? System.stage.width : 0, Math.random()*200+100);
 
                 } else if (rand < 0.6) {
-                    // An enemy that follows the player and shoots directly at them
                     enemy
                         .add(new ChargeAtPlayer(_ctx, 50, 150))
                         .add(new Character(_ctx, "badguy", 40, 2));
@@ -142,7 +141,6 @@ class JellyLevelModel extends Component
                     sprite.setXY(Math.random()*System.stage.width, -30);
 
                 } else {
-                    // A slow bomber that shoots a large spread of bullets
                     enemy
                         .add(new MoveStraight(_ctx, Math.random()*100-50, 200))
                         .add(new Character(_ctx, "badguy", 50, 3));
@@ -172,13 +170,10 @@ class JellyLevelModel extends Component
             new CallFunction(function () {
                 var coral = new ImageSprite(_ctx.pack.getTexture("jelly/coraltwo"))
                     .centerAnchor().setAlpha(0.9);
-                    //original = coral.setXY(Math.random() * System.stage.width, -coral.getNaturalHeight()/2);
-                // working but not quite = coral.setXY(Math.random() * System.stage.width, Math.random() * System.stage.height);/
-                //  working but start reverse = coral.setXY(-coral.getNaturalWidth()/2, Math.random() * System.stage.height);
+                    
                 coral.setXY(System.stage.width + coral.getNaturalWidth()/2, Math.random() * System.stage.height);
                 coralScript.run(new Sequence([
                     new AnimateTo(coral.x, -coral.getNaturalWidth()/2, 10+8*Math.random()),
-                    //new AnimateTo(coral.x, System.stage.width+coral.getNaturalWidth(), 10+8*Math.random(), Ease.sineInOut),
                     new CallFunction(coral.dispose),
                 ]));
                 _coralLayer.addChild(new Entity().add(coral));
@@ -195,7 +190,7 @@ class JellyLevelModel extends Component
         coinScript.run(new Repeat(new Sequence([
             new Delay(0.8),
             new CallFunction(function () {
-                var coin = new Entity().add(new Character(_ctx, "coin", 30, 2));
+                var coin = new Entity().add(new Character(_ctx, "coin", 30, 1));
 
                 var points = 0;
                 var rand = Math.random(); //save to set point worth. if (rand < 0.3) etc
@@ -204,7 +199,6 @@ class JellyLevelModel extends Component
                     var top = Math.random() < 0.5;
                     var speed = Math.random()*100 + 150;
                     coin
-                        //add behaviors
                         .add(new MoveStraight(_ctx, left ? -speed : speed, 0))
                         .add(new Character(_ctx, "coin", 30, 1));
                     var sprite = coin.get(Sprite);
@@ -251,6 +245,62 @@ class JellyLevelModel extends Component
             }
         }
 
+        /* pseudo code for collisions
+        for(coins in game)
+        {
+            if (coin[i].collidedwith(player))
+            {
+                score++;
+                trace("Hello world !");
+            }
+        }
+
+        var i = 0;
+        while (i < _friendlies.length)
+        {
+            var this = _friendlies[i];
+            var thisS = this.get(Sprite);
+            var that = player
+            var thatS = player.get(Sprite);
+
+            var dx = thisS.x - thatS.x;
+            var dy = thisS.y - thatS.y;
+            var distance = Math.sqrt(dx*dx + dy*dy);
+
+            if(distance < this.radius + that.radius)
+            {
+                //collision detected!
+                trace("collision detected");
+            }
+        }
+        */
+
+        //Collision detection for circles (in theory)
+
+        var i = 0;
+        while (i < _friendlies.length)
+        {
+            var a = _friendlies[i];
+            var aS = a.get(Sprite);
+            var b = player;
+            var bS = player.get(Sprite);
+
+            var dx = aS.x._ - bS.x._;
+            var dy = aS.y._ - bS.y._;
+            var distance = dx*dx + dy*dy;
+
+            if(distance < a.get(Character).radius + b.get(Character).radius)
+            {
+                //collision detected!
+                trace("collision detected between _friendlies & player");
+            }
+            else {
+                trace("i got nothing");
+            }
+
+            i++;
+        }
+
         //Remove offscreen coins
         var ii = 0;
         while (ii < _friendlies.length) {
@@ -270,7 +320,6 @@ class JellyLevelModel extends Component
         }
 
         // Remove offscreen enemies
-        
         var ii = 0;
         while (ii < _enemies.length) {
             var enemy = _enemies[ii];
