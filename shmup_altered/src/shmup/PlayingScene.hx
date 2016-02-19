@@ -24,7 +24,7 @@ class PlayingScene
         var scoreLabel = new TextSprite(ctx.lightFont);
         scoreLabel.setXY(5, 5);
         level.score.watch(function (score,_) {
-            scoreLabel.text = ""+score;
+            scoreLabel.text = "Score: "+score;
         });
         scene.addChild(new Entity().add(scoreLabel));
 

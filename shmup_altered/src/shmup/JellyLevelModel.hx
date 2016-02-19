@@ -19,6 +19,7 @@ import flambe.script.Sequence;
 import flambe.util.Value;
 
 import shmup.ai.MoveStraight;
+import shmup.ai.ChargeAtPlayer;
 
 class JellyLevelModel extends Component
 {
@@ -36,6 +37,7 @@ class JellyLevelModel extends Component
     private var _coralLayer :Entity;
     private var _characterLayer :Entity;
     private var _coinLayer :Entity;
+    private var _enemyLayer :Entity;
 
     private var _enemies :Array<Entity>;
     private var _friendlies :Array<Entity>;
@@ -60,6 +62,7 @@ class JellyLevelModel extends Component
 		_worldLayer.addChild(_coralLayer = new Entity());
         _worldLayer.addChild(_characterLayer = new Entity());
         _worldLayer.addChild(_coinLayer = new Entity());
+        _worldLayer.addChild(_enemyLayer = new Entity());
 
         //Generate scrolling coral background
         scrollingCoral();
@@ -111,7 +114,51 @@ class JellyLevelModel extends Component
 
     public function generateEnemies ()
     {
+        var enemyScript = new Script();
+        _enemyLayer.add(enemyScript);
 
+        enemyScript.run(new Repeat(new Sequence([
+            new Delay(1.0),
+            new CallFunction(function () {
+                var enemy = new Entity().add(new Character(_ctx, "badguy", 30, 2));
+
+                var rand = Math.random();
+                if (rand < 0.3) {
+                    // A quick enemy that strafes from one side of the screen to the other
+                    var left = Math.random() < 0.5;
+                    var speed = Math.random()*100 + 150;
+                    enemy
+                        .add(new MoveStraight(_ctx, left ? -speed : speed, 0))
+                        .add(new Character(_ctx, "badguy", 30, 1));
+                    var sprite = enemy.get(Sprite);
+                    sprite.setXY(left ? System.stage.width : 0, Math.random()*200+100);
+
+                } else if (rand < 0.6) {
+                    // An enemy that follows the player and shoots directly at them
+                    enemy
+                        .add(new ChargeAtPlayer(_ctx, 50, 150))
+                        .add(new Character(_ctx, "badguy", 40, 2));
+                    var sprite = enemy.get(Sprite);
+                    sprite.setXY(Math.random()*System.stage.width, -30);
+
+                } else {
+                    // A slow bomber that shoots a large spread of bullets
+                    enemy
+                        .add(new MoveStraight(_ctx, Math.random()*100-50, 200))
+                        .add(new Character(_ctx, "badguy", 50, 3));
+                    var sprite = enemy.get(Sprite);
+                    sprite.setXY(Math.random()*System.stage.width, -30);
+                }
+
+                var sprite = enemy.get(Sprite);
+                enemy.get(Character).destroyed.connect(function () {
+                    //explode(sprite.x._, sprite.y._);
+                });
+
+                _enemyLayer.addChild(enemy);
+                _enemies.push(enemy);
+            }),
+        ])));
     }
 
     public function scrollingCoral ()
@@ -223,7 +270,7 @@ class JellyLevelModel extends Component
         }
 
         // Remove offscreen enemies
-        /*
+        
         var ii = 0;
         while (ii < _enemies.length) {
             var enemy = _enemies[ii];
@@ -239,6 +286,5 @@ class JellyLevelModel extends Component
                 ++ii;
             }
         }
-        */
     }
 }
