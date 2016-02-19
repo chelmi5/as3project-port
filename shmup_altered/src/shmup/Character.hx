@@ -18,7 +18,7 @@ class Character extends Component
     public var radius (default, null) :Float;
     public var health (default, null) :Float;
 
-    /** Emitted when this plane is destroyed. */
+    /** Emitted when this character is destroyed. */
     public var destroyed (default, null) :Signal0;
 
     public function new (ctx :GameContext, name :String, radius :Float, health :Float)
@@ -41,7 +41,7 @@ class Character extends Component
         sprite.centerAnchor();
     }
 
-    /** Deal damage to this plane, returns true if it was destroyed. */
+    /** Deal damage to this character, returns true if it was destroyed. */
     public function damage (amount :Float) :Bool
     {
         if (amount >= health) {

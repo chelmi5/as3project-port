@@ -16,7 +16,6 @@ class PlayingScene
     {
         var scene = new Entity();
 
-        //var level = new LevelModel(ctx);
         var level = new JellyLevelModel(ctx);
         ctx.level = level;
         scene.add(level);

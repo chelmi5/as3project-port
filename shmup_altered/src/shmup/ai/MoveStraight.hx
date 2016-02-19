@@ -20,7 +20,7 @@ class MoveStraight extends Component
     override public function onAdded ()
     {
         var sprite = owner.get(Sprite);
-        sprite.rotation._ = FMath.toDegrees(Math.atan2(_velY, _velX)) + 90;
+        //sprite.rotation._ = FMath.toDegrees(Math.atan2(_velY, _velX)) + 90;
     }
 
     override public function onUpdate (dt :Float)

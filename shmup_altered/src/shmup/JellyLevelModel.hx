@@ -18,6 +18,8 @@ import flambe.script.Script;
 import flambe.script.Sequence;
 import flambe.util.Value;
 
+import shmup.ai.MoveStraight;
+
 class JellyLevelModel extends Component
 {
 	public static inline var PLAYER_SPEED = 1000;
@@ -32,7 +34,7 @@ class JellyLevelModel extends Component
 
     private var _worldLayer :Entity;
     private var _coralLayer :Entity;
-    private var _planeLayer :Entity;
+    private var _characterLayer :Entity;
     private var _bulletLayer :Entity;
     private var _explosionLayer :Entity;
 
@@ -57,7 +59,7 @@ class JellyLevelModel extends Component
 
 		//add everything to world layer
 		_worldLayer.addChild(_coralLayer = new Entity());
-        _worldLayer.addChild(_planeLayer = new Entity());
+        _worldLayer.addChild(_characterLayer = new Entity());
         _worldLayer.addChild(_bulletLayer = new Entity());
         _worldLayer.addChild(_explosionLayer = new Entity());
 
@@ -68,7 +70,7 @@ class JellyLevelModel extends Component
 		worldScript.run(new Repeat(new Sequence([
             new Delay(1.5),
             new CallFunction(function () {
-                var coral = new ImageSprite(_ctx.pack.getTexture("jelly/coral"))
+                var coral = new ImageSprite(_ctx.pack.getTexture("jelly/coraltwo"))
                     .centerAnchor().setAlpha(0.9);
                 coral.setXY(Math.random() * System.stage.width, -coral.getNaturalHeight()/2);
                 worldScript.run(new Sequence([
@@ -85,7 +87,7 @@ class JellyLevelModel extends Component
         var jelly = new Character(_ctx, "playerjelly", 5, 3);
         jelly.destroyed.connect(function () {
             // When the player dies, show an explosion
-            var sprite = player.get(Sprite);
+            //var sprite = player.get(Sprite);
             //explode(sprite.x._, sprite.y._);
 
             // Adjust the speed of the world for a dramatic slow motion effect
@@ -112,11 +114,46 @@ class JellyLevelModel extends Component
         });
 
         player = new Entity().add(jelly);
-        _planeLayer.addChild(player);
+        _characterLayer.addChild(player);
         _friendlies = [player];
 
         // Start the player near the bottom of the screen
         player.get(Sprite).setXY(System.stage.width/2, 0.8*System.stage.height);
+
+        //Attempt at coin generation
+        var worldScript = new Script();
+        _worldLayer.add(worldScript);
+
+        // Repeatedly spawn more coins
+        worldScript.run(new Repeat(new Sequence([
+            new Delay(0.8),
+            new CallFunction(function () {
+                var coin = new Entity().add(new Character(_ctx, "coin", 30, 2));
+
+                var points = 0;
+                var rand = Math.random(); //save to set point worth. if (rand < 0.3) etc
+
+                    var left = Math.random() < 0.5;
+                    var speed = Math.random()*100 + 150;
+                    coin
+                        //add behaviors
+                        .add(new MoveStraight(_ctx, left ? -speed : speed, 0))
+                        .add(new Character(_ctx, "coin", 30, 1));
+                    var sprite = coin.get(Sprite);
+                    sprite.setXY(left ? System.stage.width : 0, Math.random()*200+100);
+                    points = 10;
+                
+
+                var sprite = coin.get(Sprite);
+                coin.get(Character).destroyed.connect(function () {
+                    //explode(sprite.x._, sprite.y._);
+                    score._ += points;
+                });
+
+                _characterLayer.addChild(coin);
+                _friendlies.push(coin);
+            }),
+        ])));
 
 	}
 
@@ -125,7 +162,7 @@ class JellyLevelModel extends Component
         var pointerX = System.pointer.x;
         var pointerY = System.pointer.y;
 
-        // If the player is using a touch screen, offset a bit so that the plane isn't obscurred by
+        // If the player is using a touch screen, offset a bit so that the jellyfish isn't obscurred by
         // their finger
         if (System.touch.supported) {
             pointerY -= 50;
