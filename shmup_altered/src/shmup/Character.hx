@@ -12,7 +12,7 @@ import flambe.script.Script;
 import flambe.script.Sequence;
 import flambe.util.Signal0;
 
-/** Logic for planes. */
+/** Logic for Characters. */
 class Character extends Component
 {
     public var radius (default, null) :Float;

@@ -222,12 +222,6 @@ class JellyLevelModel extends Component
         var pointerX = System.pointer.x;
         var pointerY = System.pointer.y;
 
-        // If the player is using a touch screen, offset a bit so that the jellyfish isn't obscurred by
-        // their finger
-        if (System.touch.supported) {
-            pointerY -= 50;
-        }
-
         // Move towards the pointer position at a fixed speed
         var sprite = player.get(Sprite);
         if (sprite != null) {
@@ -244,36 +238,6 @@ class JellyLevelModel extends Component
                 sprite.y._ = pointerY;
             }
         }
-
-        /* pseudo code for collisions
-        for(coins in game)
-        {
-            if (coin[i].collidedwith(player))
-            {
-                score++;
-                trace("Hello world !");
-            }
-        }
-
-        var i = 0;
-        while (i < _friendlies.length)
-        {
-            var this = _friendlies[i];
-            var thisS = this.get(Sprite);
-            var that = player
-            var thatS = player.get(Sprite);
-
-            var dx = thisS.x - thatS.x;
-            var dy = thisS.y - thatS.y;
-            var distance = Math.sqrt(dx*dx + dy*dy);
-
-            if(distance < this.radius + that.radius)
-            {
-                //collision detected!
-                trace("collision detected");
-            }
-        }
-        */
 
         //Collision detection for circles (in theory)
 
@@ -293,9 +257,13 @@ class JellyLevelModel extends Component
             {
                 //collision detected!
                 trace("collision detected between _friendlies & player");
+                aS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
+                aS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
+
             }
             else {
                 trace("i got nothing");
+                //aS.setScale(0.5);
             }
 
             i++;
