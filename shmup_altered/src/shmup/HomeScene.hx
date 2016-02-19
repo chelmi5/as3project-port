@@ -11,6 +11,12 @@ import flambe.display.FillSprite;
 import flambe.display.ImageSprite;
 import flambe.display.Sprite;
 import flambe.util.Promise;
+import flambe.script.Repeat;
+import flambe.script.Script;
+import flambe.script.Sequence;
+import flambe.script.CallFunction;
+import flambe.script.AnimateTo;
+import flambe.script.Delay;
 
 class HomeScene
 {
@@ -40,25 +46,31 @@ class HomeScene
         titlejelly.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
         titlejelly.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
 
-        //try looping with a script?
-        //titlejelly.y.animate(System.stage.height/2.4, System.stage.height/2.6, 1, Ease.sineInOut);
-        /*
-        worldScript.run(new Repeat(new Sequence([
-            new Delay(1.5),
-            new CallFunction(function () {
-                var coral = new ImageSprite(_ctx.pack.getTexture("jelly/coraltwo"))
-                    .centerAnchor().setAlpha(0.9);
-                coral.setXY(Math.random() * System.stage.width, -coral.getNaturalHeight()/2);
-                worldScript.run(new Sequence([
-                    new AnimateTo(coral.y, System.stage.height+coral.getNaturalHeight()/2, 10+8*Math.random()),
-                    new CallFunction(coral.dispose),
-                ]));
-                _coralLayer.addChild(new Entity().add(coral));
-            }),
-        ])));
-        */
-
         scene.addChild(new Entity().add(titlejelly));
+
+        var script = new Script();
+
+        // Call a function every 
+        script.run(new Repeat(new Sequence([
+            new CallFunction(function () {
+                script.run(new Sequence([
+                    new AnimateTo(titlejelly.y, System.stage.height/3, 0.5, Ease.quadIn),
+                    //new Delay(1),
+                ]));
+                script.run(new Sequence([
+                  
+                    new AnimateTo(titlejelly.y, System.stage.height/2, 0.5, Ease.quadIn),
+                    //new Delay(1),
+                ]));
+            }),
+            
+        ])));
+
+        //add back in if script starts working...
+        //scene.add(script);
+
+        //try looping with a script?
+        //titlejelly.y.animate(System.stage.height/2.4, System.stage.height/2.6, 1, Ease.sineInOut);        
 
         var playbutton = new ImageSprite(ctx.pack.getTexture("jelly/playbutton"));
         playbutton.centerAnchor().setXY(System.stage.width/1.35, System.stage.height/1.3);
@@ -68,6 +80,8 @@ class HomeScene
         //if pressed, plays noise and starts level
         playbutton.pointerDown.connect(function (_) {
             //ctx.pack.getSound("sounds/Coin").play();
+            playbutton.scaleX.animate(0.5, 1, 0.5, Ease.backOut);
+            playbutton.scaleY.animate(0.5, 1, 0.5, Ease.backOut);
             ctx.enterPlayingScene();
         });
         scene.addChild(new Entity().add(playbutton));

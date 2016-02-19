@@ -22,9 +22,9 @@ import shmup.ai.MoveStraight;
 
 class JellyLevelModel extends Component
 {
-	public static inline var PLAYER_SPEED = 1000;
+	public static inline var PLAYER_SPEED = 700;
     public static inline var ENEMY_SPEED = 500;
-    public static inline var COIN_SPEED = 700;
+    //public static inline var COIN_SPEED = 700; randomized
 
 	public var player (default, null) :Entity;
 
@@ -36,7 +36,6 @@ class JellyLevelModel extends Component
     private var _coralLayer :Entity;
     private var _characterLayer :Entity;
     private var _coinLayer :Entity;
-    private var _explosionLayer :Entity;
 
     private var _enemies :Array<Entity>;
     private var _friendlies :Array<Entity>;
@@ -61,42 +60,30 @@ class JellyLevelModel extends Component
 		_worldLayer.addChild(_coralLayer = new Entity());
         _worldLayer.addChild(_characterLayer = new Entity());
         _worldLayer.addChild(_coinLayer = new Entity());
-        _worldLayer.addChild(_explosionLayer = new Entity());
 
-        var worldScript = new Script();
-        _worldLayer.add(worldScript);
+        //Generate scrolling coral background
+        scrollingCoral();
 
-		//add scrolling coral bg
-		worldScript.run(new Repeat(new Sequence([
-            new Delay(1.5),
-            new CallFunction(function () {
-                var coral = new ImageSprite(_ctx.pack.getTexture("jelly/coraltwo"))
-                    .centerAnchor().setAlpha(0.9);
-                coral.setXY(Math.random() * System.stage.width, -coral.getNaturalHeight()/2);
-                worldScript.run(new Sequence([
-                    new AnimateTo(coral.y, System.stage.height+coral.getNaturalHeight()/2, 10+8*Math.random()),
-                    new CallFunction(coral.dispose),
-                ]));
-                _coralLayer.addChild(new Entity().add(coral));
-            }),
-        ])));
+        //Generate coins
+        generateCoins();
 
-        //add player character
+        //Generate enemies
+        generateEnemies();
 
         // Create the player
         var jelly = new Character(_ctx, "playerjelly", 5, 3);
         jelly.destroyed.connect(function () {
-            // When the player dies, show an explosion
-            //var sprite = player.get(Sprite);
-            //explode(sprite.x._, sprite.y._);
 
+            //jelly spins around if killed
+            //var sprite = player.get(Sprite);
+            //sprite.rotation.animate(360, 1, Ease.sineInOut);
             // Adjust the speed of the world for a dramatic slow motion effect
             var worldSpeed = new SpeedAdjuster(0.5);
             _worldLayer.add(worldSpeed);
 
             // Then show the game over prompt after a moment
-            var script = new Script();
-            script.run(new Sequence([
+            var gameoverscript = new Script();
+            gameoverscript.run(new Sequence([
                 new AnimateTo(worldSpeed.scale, 0, 1.5),
                 new CallFunction(function () {
                     _ctx.showPrompt(_ctx.messages.get("game_over", [score._]), [
@@ -110,7 +97,7 @@ class JellyLevelModel extends Component
                     ]);
                 }),
             ]));
-            owner.add(script);
+            owner.add(gameoverscript);
         });
 
         player = new Entity().add(jelly);
@@ -120,7 +107,40 @@ class JellyLevelModel extends Component
         // Start the player near the bottom of the screen
         player.get(Sprite).setXY(System.stage.width/2, 0.8*System.stage.height);
 
-        //Coin generation
+	}
+
+    public function generateEnemies ()
+    {
+
+    }
+
+    public function scrollingCoral ()
+    {
+        var coralScript = new Script();
+        _worldLayer.add(coralScript);
+
+        //add scrolling coral bg
+        coralScript.run(new Repeat(new Sequence([
+            new Delay(1),
+            new CallFunction(function () {
+                var coral = new ImageSprite(_ctx.pack.getTexture("jelly/coraltwo"))
+                    .centerAnchor().setAlpha(0.9);
+                    //original = coral.setXY(Math.random() * System.stage.width, -coral.getNaturalHeight()/2);
+                // working but not quite = coral.setXY(Math.random() * System.stage.width, Math.random() * System.stage.height);/
+                //  working but start reverse = coral.setXY(-coral.getNaturalWidth()/2, Math.random() * System.stage.height);
+                coral.setXY(System.stage.width + coral.getNaturalWidth()/2, Math.random() * System.stage.height);
+                coralScript.run(new Sequence([
+                    new AnimateTo(coral.x, -coral.getNaturalWidth()/2, 10+8*Math.random()),
+                    //new AnimateTo(coral.x, System.stage.width+coral.getNaturalWidth(), 10+8*Math.random(), Ease.sineInOut),
+                    new CallFunction(coral.dispose),
+                ]));
+                _coralLayer.addChild(new Entity().add(coral));
+            }),
+        ])));
+    }
+
+    public function generateCoins ()
+    {
         var coinScript = new Script();
         _coinLayer.add(coinScript);
 
@@ -133,20 +153,20 @@ class JellyLevelModel extends Component
                 var points = 0;
                 var rand = Math.random(); //save to set point worth. if (rand < 0.3) etc
 
-                    var left = Math.random() < 0.5;
+                    var left = Math.random() < 0.5; //whether coin will appear on left or right of screen
+                    var top = Math.random() < 0.5;
                     var speed = Math.random()*100 + 150;
                     coin
                         //add behaviors
                         .add(new MoveStraight(_ctx, left ? -speed : speed, 0))
                         .add(new Character(_ctx, "coin", 30, 1));
                     var sprite = coin.get(Sprite);
-                    sprite.setXY(left ? System.stage.width : 0, Math.random()*200+150);
+                    sprite.setXY(left ? System.stage.width : 0, Math.random()*System.stage.height);
                     points = 10;
                 
 
                 var sprite = coin.get(Sprite);
                 coin.get(Character).destroyed.connect(function () {
-                    //explode(sprite.x._, sprite.y._);
                     score._ += points;
                 });
 
@@ -154,8 +174,7 @@ class JellyLevelModel extends Component
                 _friendlies.push(coin);
             }),
         ])));
-
-	}
+    }
 
 	override public function onUpdate (dt :Float)
     {

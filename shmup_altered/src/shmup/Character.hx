@@ -51,6 +51,7 @@ class Character extends Component
             return true;
 
         } else {
+            /*
             var hit = _ctx.pack.getTexture("planes/"+_name+"_hit");
             var sprite = owner.get(ImageSprite);
 
@@ -71,6 +72,7 @@ class Character extends Component
                     }),
                 ]));
             }
+            */
 
             _ctx.pack.getSound("sounds/Hurt").play();
 

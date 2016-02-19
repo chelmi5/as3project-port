@@ -27,8 +27,7 @@ class Main
         System.loadAssetPack(manifest).get(function (bootstrapPack) {
 
             // Then load up the pack containing localized assets. Depending on the user's language,
-            // this will load either "locale", "locale-es", or "locale-pt". See the docs for
-            // Manifest.fromAssetsLocalized() for more info.
+            // this will load either "locale", "locale-es", or "locale-pt".
             System.loadAssetPack(Manifest.fromAssetsLocalized("locale")).get(function (localePack) {
 
                 // Then finally load the bulk of game's assets from the main pack
