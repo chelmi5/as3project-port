@@ -7,6 +7,7 @@ package shmup;
 import flambe.Entity;
 import flambe.System;
 import flambe.animation.Ease;
+import flambe.animation.Sine;
 import flambe.display.FillSprite;
 import flambe.display.ImageSprite;
 import flambe.display.Sprite;
@@ -43,29 +44,14 @@ class HomeScene
         var titlejelly = new ImageSprite(ctx.pack.getTexture("jelly/titlejelly"));
         titlejelly.x._ = System.stage.width/11;
         titlejelly.y._ = System.stage.height/2.4;
-        titlejelly.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
-        titlejelly.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
+        //titlejelly.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
+        //titlejelly.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
 
         scene.addChild(new Entity().add(titlejelly));
 
-        var script = new Script();
+        titlejelly.y.behavior = new Sine(System.stage.height/2.7, System.stage.height/2.1);
 
-        // Call a function every 
-        script.run(new Repeat(new Sequence([
-            new CallFunction(function () {
-                script.run(new Sequence([
-                    new AnimateTo(titlejelly.y, System.stage.height/3, 0.5, Ease.quadIn),
-                    //new Delay(1),
-                ]));
-                script.run(new Sequence([
-                  
-                    new AnimateTo(titlejelly.y, System.stage.height/2, 0.5, Ease.quadIn),
-                    //new Delay(1),
-                ]));
-            }),
-            
-        ])));
-
+     
         //add back in if script starts working...
         //scene.add(script);
 
