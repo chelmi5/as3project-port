@@ -67,7 +67,7 @@ class HomeScene
 
         //if pressed, plays noise and starts level
         playbutton.pointerDown.connect(function (_) {
-            ctx.pack.getSound("sounds/Coin").play();
+            //ctx.pack.getSound("sounds/Coin").play();
             ctx.enterPlayingScene();
         });
         scene.addChild(new Entity().add(playbutton));

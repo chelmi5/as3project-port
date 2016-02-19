@@ -35,7 +35,7 @@ class JellyLevelModel extends Component
     private var _worldLayer :Entity;
     private var _coralLayer :Entity;
     private var _characterLayer :Entity;
-    private var _bulletLayer :Entity;
+    private var _coinLayer :Entity;
     private var _explosionLayer :Entity;
 
     private var _enemies :Array<Entity>;
@@ -60,7 +60,7 @@ class JellyLevelModel extends Component
 		//add everything to world layer
 		_worldLayer.addChild(_coralLayer = new Entity());
         _worldLayer.addChild(_characterLayer = new Entity());
-        _worldLayer.addChild(_bulletLayer = new Entity());
+        _worldLayer.addChild(_coinLayer = new Entity());
         _worldLayer.addChild(_explosionLayer = new Entity());
 
         var worldScript = new Script();
@@ -120,12 +120,12 @@ class JellyLevelModel extends Component
         // Start the player near the bottom of the screen
         player.get(Sprite).setXY(System.stage.width/2, 0.8*System.stage.height);
 
-        //Attempt at coin generation
-        var worldScript = new Script();
-        _worldLayer.add(worldScript);
+        //Coin generation
+        var coinScript = new Script();
+        _coinLayer.add(coinScript);
 
         // Repeatedly spawn more coins
-        worldScript.run(new Repeat(new Sequence([
+        coinScript.run(new Repeat(new Sequence([
             new Delay(0.8),
             new CallFunction(function () {
                 var coin = new Entity().add(new Character(_ctx, "coin", 30, 2));
@@ -140,7 +140,7 @@ class JellyLevelModel extends Component
                         .add(new MoveStraight(_ctx, left ? -speed : speed, 0))
                         .add(new Character(_ctx, "coin", 30, 1));
                     var sprite = coin.get(Sprite);
-                    sprite.setXY(left ? System.stage.width : 0, Math.random()*200+100);
+                    sprite.setXY(left ? System.stage.width : 0, Math.random()*200+150);
                     points = 10;
                 
 
@@ -185,6 +185,24 @@ class JellyLevelModel extends Component
             }
         }
 
+        //Remove offscreen coins
+        var ii = 0;
+        while (ii < _friendlies.length) {
+            var coin = _friendlies[ii];
+            var sprite = coin.get(Sprite);
+            var radius = coin.get(Character).radius;
+
+            //the +/- 10 is a buffer so that they don't get disposed while being generated
+            if (sprite.x._ < -radius-10 || sprite.x._ > System.stage.width+radius+10 ||
+                sprite.y._ < -radius-10 || sprite.y._ > System.stage.height+radius+10) {
+
+                _friendlies.splice(ii, 1);
+                coin.dispose();
+            } else {
+                ++ii;
+            }
+        }
+
         // Remove offscreen enemies
         /*
         var ii = 0;
@@ -193,8 +211,8 @@ class JellyLevelModel extends Component
             var sprite = enemy.get(Sprite);
             var radius = enemy.get(Character).radius;
 
-            if (sprite.x._ < -radius || sprite.x._ > System.stage.width+radius ||
-                sprite.y._ < -radius || sprite.y._ > System.stage.height+radius) {
+            if (sprite.x._ < -radius-10 || sprite.x._ > System.stage.width+radius+10 ||
+                sprite.y._ < -radius-10 || sprite.y._ > System.stage.height+radius+10) {
 
                 _enemies.splice(ii, 1);
                 enemy.dispose();
