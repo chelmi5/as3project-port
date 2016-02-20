@@ -75,7 +75,7 @@ class JellyLevelModel extends Component
         generateEnemies();
 
         // Create the player
-        var jelly = new Character(_ctx, "playerjelly", 5, 3);
+        var jelly = new Character(_ctx, "playerjelly", 50, 3);
         jelly.destroyed.connect(function () {
 
             //jelly spins around if killed
@@ -190,7 +190,7 @@ class JellyLevelModel extends Component
         coinScript.run(new Repeat(new Sequence([
             new Delay(0.8),
             new CallFunction(function () {
-                var coin = new Entity().add(new Character(_ctx, "coin", 30, 1));
+                var coin = new Entity().add(new Character(_ctx, "coin", 50, 1));
 
                 var points = 0;
                 var rand = Math.random(); //save to set point worth. if (rand < 0.3) etc
@@ -239,35 +239,11 @@ class JellyLevelModel extends Component
             }
         }
 
-        //Collision detection for circles (in theory)
+        //Collision detection for coins (in theory)
+        coinCollision();
 
-        var i = 0;
-        while (i < _friendlies.length)
-        {
-            var a = _friendlies[i];
-            var aS = a.get(Sprite);
-            var b = player;
-            var bS = player.get(Sprite);
-
-            var dx = aS.x._ - bS.x._;
-            var dy = aS.y._ - bS.y._;
-            var distance = dx*dx + dy*dy;
-
-            if(distance < a.get(Character).radius + b.get(Character).radius)
-            {
-                //collision detected!
-                trace("collision detected between _friendlies & player");
-                aS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
-                aS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
-
-            }
-            else {
-                trace("i got nothing");
-                //aS.setScale(0.5);
-            }
-
-            i++;
-        }
+        //Enemy collision detection
+        enemyCollision();
 
         //Remove offscreen coins
         var ii = 0;
@@ -302,6 +278,64 @@ class JellyLevelModel extends Component
             } else {
                 ++ii;
             }
+        }
+    }
+
+    public function coinCollision() :Void
+    {
+        var i = 0;
+        while (i < _friendlies.length)
+        {
+            var a = _friendlies[i];
+            var aS = a.get(Sprite);
+            var b = player;
+            var bS = player.get(Sprite);
+
+            var dx = aS.x._ - bS.x._;
+            var dy = aS.y._ - bS.y._;
+            var distance = dx*dx + dy*dy;
+
+            if(distance < a.get(Character).radius + b.get(Character).radius)
+            {
+                //collision detected!
+                trace("collision detected between _friendlies & player");
+                aS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
+                aS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
+                
+                score._ ++;
+
+            }
+
+            i++;
+        }
+    }
+
+    public function enemyCollision() :Void
+    {
+        var i = 0;
+        while (i < _enemies.length)
+        {
+            var a = _enemies[i];
+            var aS = a.get(Sprite);
+            var b = player;
+            var bS = player.get(Sprite);
+
+            var dx = aS.x._ - bS.x._;
+            var dy = aS.y._ - bS.y._;
+            var distance = dx*dx + dy*dy;
+
+            if(distance < a.get(Character).radius + b.get(Character).radius)
+            {
+                //collision detected!
+                trace("collision detected between _enemies & player");
+                aS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
+                aS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
+                
+                //score._ ++;
+
+            }
+
+            i++;
         }
     }
 }

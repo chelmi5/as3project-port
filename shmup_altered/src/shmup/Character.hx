@@ -5,6 +5,7 @@
 package shmup;
 
 import flambe.Component;
+import flambe.Entity;
 import flambe.display.ImageSprite;
 import flambe.script.CallFunction;
 import flambe.script.Delay;
