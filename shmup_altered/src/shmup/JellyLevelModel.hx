@@ -330,8 +330,7 @@ class JellyLevelModel extends Component
                 trace("collision detected between _enemies & player");
                 aS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
                 aS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
-                
-                //score._ ++;
+                //b.get(Character).damage(1);
 
             }
 
