@@ -124,6 +124,8 @@ class JellyLevelModel extends Component
                 var enemy = new Entity().add(new Character(_ctx, "badguy", 30, 2));
 
                 var rand = Math.random();
+
+                //Random combinations of enemy movements, speeds, etc
                 if (rand < 0.3) {
                     var left = Math.random() < 0.5;
                     var speed = Math.random()*100 + 150;
