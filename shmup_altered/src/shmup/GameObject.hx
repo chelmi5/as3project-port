@@ -12,23 +12,29 @@ import flambe.script.Delay;
 import flambe.script.Script;
 import flambe.script.Sequence;
 import flambe.util.Signal0;
+import flambe.animation.AnimatedFloat;
 
-/** Logic for Characters. */
-class Character extends Component
+/** Base logic for characters: player, baddie, coins. */
+class GameObject extends Component
 {
     public var radius (default, null) :Float;
     public var health (default, null) :Float;
+    public var points (default, null) :Float;
 
     /** Emitted when this character is destroyed. */
     public var destroyed (default, null) :Signal0;
 
-    public function new (ctx :GameContext, name :String, radius :Float, health :Float)
+    private var _ctx :GameContext;
+    private var _name :String;
+
+    public function new (ctx :GameContext, name :String, radius :Float, health :Float, points :Float)
     {
         _ctx = ctx;
         _name = name;
         this.radius = radius;
         this.health = health;
         destroyed = new Signal0();
+        this.points = points;
     }
 
     override public function onAdded ()
@@ -45,43 +51,21 @@ class Character extends Component
     /** Deal damage to this character, returns true if it was destroyed. */
     public function damage (amount :Float) :Bool
     {
+        //object destroyed
         if (amount >= health) {
+            points = 0;
             health = 0;
             destroyed.emit();
             owner.dispose();
             return true;
-
-        } else {
-            /*
-            var hit = _ctx.pack.getTexture("planes/"+_name+"_hit");
-            var sprite = owner.get(ImageSprite);
-
-            var oldTexture = sprite.texture;
-            if (oldTexture != hit) {
-                // Switch to the hit display state
-                sprite.texture = hit;
-
-                // And switch back after a moment
-                var script = owner.get(Script);
-                if (script == null) {
-                    owner.add(script = new Script());
-                }
-                script.run(new Sequence([
-                    new Delay(0.1),
-                    new CallFunction(function () {
-                        sprite.texture = oldTexture;
-                    }),
-                ]));
-            }
-            */
+        }
+        //object damaged 
+        else {
 
             _ctx.pack.getSound("sounds/Hurt").play();
-
             health -= amount;
             return false;
         }
     }
 
-    private var _ctx :GameContext;
-    private var _name :String;
 }
