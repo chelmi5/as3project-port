@@ -243,7 +243,7 @@ class JellyLevelModel extends Component
 
         //Collision detection for coins (in theory)
         //coinCollision();
-        coinCollisionTest();
+        coinCollision();
 
         //Enemy collision detection
         enemyCollision();
@@ -284,7 +284,7 @@ class JellyLevelModel extends Component
         }
     }
 
-    public function coinCollisionTest():Void
+    public function coinCollision():Void
     {
         var i = 0;
         
@@ -302,9 +302,13 @@ class JellyLevelModel extends Component
             {
                 aS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
                 aS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
-                trace("collision ho");
 
+                trace("coin - player collision");
                 score._ += Std.int(a.get(GameObject).points);
+                _ctx.pack.getSound("sounds/Coin").play();
+
+                _friendlies.splice(i, 1);
+                a.dispose();
                 //a.get(GameObject).points = 0;
             }
 
@@ -313,38 +317,10 @@ class JellyLevelModel extends Component
         
     }
 
-    public function coinCollision() :Void
-    {
-        var i = 0;
-        while (i < _friendlies.length)
-        {
-            var a = _friendlies[i];
-            var aS = a.get(Sprite);
-            var b = player;
-            var bS = player.get(Sprite);
-
-            var dx = aS.x._ - bS.x._;
-            var dy = aS.y._ - bS.y._;
-            var distance = dx*dx + dy*dy;
-
-            if(distance < a.get(GameObject).radius + b.get(GameObject).radius)
-            {
-                //collision detected!
-                trace("collision detected between _friendlies & player");
-                aS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
-                aS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
-                
-                score._ ++;
-
-            }
-
-            i++;
-        }
-    }
-
     public function enemyCollision() :Void
     {
         var i = 0;
+        
         while (i < _enemies.length)
         {
             var a = _enemies[i];
@@ -352,18 +328,23 @@ class JellyLevelModel extends Component
             var b = player;
             var bS = player.get(Sprite);
 
-            var dx = aS.x._ - bS.x._;
-            var dy = aS.y._ - bS.y._;
-            var distance = dx*dx + dy*dy;
-
-            if(distance < a.get(GameObject).radius + b.get(GameObject).radius)
+            var maxDist = a.get(GameObject).radius + b.get(GameObject).radius;
+            // classic distance formula
+            var distSqr = (aS.x._ - bS.x._)*(aS.x._ - bS.x._) + (aS.y._ - bS.y._)*(aS.y._ - bS.y._);
+            if( distSqr<=maxDist*maxDist )
             {
-                //collision detected!
-                trace("collision detected between _enemies & player");
                 aS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
                 aS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
-                //b.get(GameObject).damage(1);
+                trace("enemy - player collision");
 
+                _enemies.splice(i, 1);
+                a.dispose();
+
+                if(player.get(GameObject).damage(1))
+                {
+                    player.get(GameObject).destroyed.emit();
+                    break;
+                }
             }
 
             i++;

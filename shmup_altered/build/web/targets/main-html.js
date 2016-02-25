@@ -5702,7 +5702,7 @@ flambe_script_Script.__name__ = true;
 flambe_script_Script.__super__ = flambe_Component;
 flambe_script_Script.prototype = $extend(flambe_Component.prototype,{
 	get_name: function() {
-		return "Script_7";
+		return "Script_8";
 	}
 	,run: function(action) {
 		var handle = new flambe_script__$Script_Handle(action);
@@ -6564,7 +6564,7 @@ shmup_GameObject.__name__ = true;
 shmup_GameObject.__super__ = flambe_Component;
 shmup_GameObject.prototype = $extend(flambe_Component.prototype,{
 	get_name: function() {
-		return "GameObject_4";
+		return "GameObject_5";
 	}
 	,onAdded: function() {
 		var normal = this._ctx.pack.getTexture("jelly/" + this._name);
@@ -6572,6 +6572,17 @@ shmup_GameObject.prototype = $extend(flambe_Component.prototype,{
 		if(sprite == null) this.owner.add(sprite = new flambe_display_ImageSprite(normal));
 		sprite.texture = normal;
 		sprite.centerAnchor();
+	}
+	,damage: function(amount) {
+		this._ctx.pack.getSound("sounds/Hurt").play();
+		if(amount >= this.health) {
+			this.points = 0;
+			this.health = 0;
+			return true;
+		} else {
+			this.health -= amount;
+			return false;
+		}
 	}
 	,__class__: shmup_GameObject
 });
@@ -6618,7 +6629,7 @@ shmup_JellyLevelModel.__name__ = true;
 shmup_JellyLevelModel.__super__ = flambe_Component;
 shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 	get_name: function() {
-		return "JellyLevelModel_0";
+		return "JellyLevelModel_4";
 	}
 	,onAdded: function() {
 		var _g = this;
@@ -6690,7 +6701,7 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 			sprite = component3;
 			((function($this) {
 				var $r;
-				var component4 = enemy.getComponent("GameObject_4");
+				var component4 = enemy.getComponent("GameObject_5");
 				$r = component4;
 				return $r;
 			}(this))).destroyed.connect(function() {
@@ -6732,7 +6743,7 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 			sprite1 = component1;
 			((function($this) {
 				var $r;
-				var component2 = coin.getComponent("GameObject_4");
+				var component2 = coin.getComponent("GameObject_5");
 				$r = component2;
 				return $r;
 			}(this))).destroyed.connect(function() {
@@ -6764,7 +6775,7 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 				sprite.y.set__(pointerY);
 			}
 		}
-		this.coinCollisionTest();
+		this.coinCollision();
 		this.enemyCollision();
 		var ii = 0;
 		while(ii < this._friendlies.length) {
@@ -6775,7 +6786,7 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 			var radius;
 			radius = ((function($this) {
 				var $r;
-				var component2 = coin.getComponent("GameObject_4");
+				var component2 = coin.getComponent("GameObject_5");
 				$r = component2;
 				return $r;
 			}(this))).radius;
@@ -6793,7 +6804,7 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 			var radius1;
 			radius1 = ((function($this) {
 				var $r;
-				var component4 = enemy.getComponent("GameObject_4");
+				var component4 = enemy.getComponent("GameObject_5");
 				$r = component4;
 				return $r;
 			}(this))).radius;
@@ -6803,7 +6814,7 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 			} else ++ii1;
 		}
 	}
-	,coinCollisionTest: function() {
+	,coinCollision: function() {
 		var i = 0;
 		while(i < this._friendlies.length) {
 			var a = this._friendlies[i];
@@ -6817,12 +6828,12 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 			var maxDist;
 			maxDist = ((function($this) {
 				var $r;
-				var component2 = a.getComponent("GameObject_4");
+				var component2 = a.getComponent("GameObject_5");
 				$r = component2;
 				return $r;
 			}(this))).radius + ((function($this) {
 				var $r;
-				var component3 = b.getComponent("GameObject_4");
+				var component3 = b.getComponent("GameObject_5");
 				$r = component3;
 				return $r;
 			}(this))).radius;
@@ -6830,14 +6841,17 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 			if(distSqr <= maxDist * maxDist) {
 				aS.scaleX.animate(0.25,1,0.5,flambe_animation_Ease.backOut);
 				aS.scaleY.animate(0.25,1,0.5,flambe_animation_Ease.backOut);
-				console.log("collision ho");
+				console.log("coin - player collision");
 				var _g = this.score;
 				_g.set__(_g.get__() + Std["int"](((function($this) {
 					var $r;
-					var component4 = a.getComponent("GameObject_4");
+					var component4 = a.getComponent("GameObject_5");
 					$r = component4;
 					return $r;
 				}(this))).points));
+				this._ctx.pack.getSound("sounds/Coin").play();
+				this._friendlies.splice(i,1);
+				a.dispose();
 			}
 			i++;
 		}
@@ -6853,23 +6867,39 @@ shmup_JellyLevelModel.prototype = $extend(flambe_Component.prototype,{
 			var bS;
 			var component1 = this.player.getComponent("Sprite_0");
 			bS = component1;
-			var dx = aS.x.get__() - bS.x.get__();
-			var dy = aS.y.get__() - bS.y.get__();
-			var distance = dx * dx + dy * dy;
-			if(distance < ((function($this) {
+			var maxDist;
+			maxDist = ((function($this) {
 				var $r;
-				var component2 = a.getComponent("GameObject_4");
+				var component2 = a.getComponent("GameObject_5");
 				$r = component2;
 				return $r;
 			}(this))).radius + ((function($this) {
 				var $r;
-				var component3 = b.getComponent("GameObject_4");
+				var component3 = b.getComponent("GameObject_5");
 				$r = component3;
 				return $r;
-			}(this))).radius) {
-				console.log("collision detected between _enemies & player");
+			}(this))).radius;
+			var distSqr = (aS.x.get__() - bS.x.get__()) * (aS.x.get__() - bS.x.get__()) + (aS.y.get__() - bS.y.get__()) * (aS.y.get__() - bS.y.get__());
+			if(distSqr <= maxDist * maxDist) {
 				aS.scaleX.animate(0.25,1,0.5,flambe_animation_Ease.backOut);
 				aS.scaleY.animate(0.25,1,0.5,flambe_animation_Ease.backOut);
+				console.log("enemy - player collision");
+				this._enemies.splice(i,1);
+				a.dispose();
+				if(((function($this) {
+					var $r;
+					var component4 = $this.player.getComponent("GameObject_5");
+					$r = component4;
+					return $r;
+				}(this))).damage(1)) {
+					((function($this) {
+						var $r;
+						var component5 = $this.player.getComponent("GameObject_5");
+						$r = component5;
+						return $r;
+					}(this))).destroyed.emit();
+					break;
+				}
 			}
 			i++;
 		}
@@ -7004,7 +7034,7 @@ shmup_ai_ChargeAtPlayer.__name__ = true;
 shmup_ai_ChargeAtPlayer.__super__ = flambe_Component;
 shmup_ai_ChargeAtPlayer.prototype = $extend(flambe_Component.prototype,{
 	get_name: function() {
-		return "ChargeAtPlayer_1";
+		return "ChargeAtPlayer_6";
 	}
 	,onUpdate: function(dt) {
 		var sprite;
@@ -7041,7 +7071,7 @@ shmup_ai_MoveStraight.__name__ = true;
 shmup_ai_MoveStraight.__super__ = flambe_Component;
 shmup_ai_MoveStraight.prototype = $extend(flambe_Component.prototype,{
 	get_name: function() {
-		return "MoveStraight_2";
+		return "MoveStraight_7";
 	}
 	,onAdded: function() {
 		var sprite;

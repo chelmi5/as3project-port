@@ -51,18 +51,15 @@ class GameObject extends Component
     /** Deal damage to this character, returns true if it was destroyed. */
     public function damage (amount :Float) :Bool
     {
+        _ctx.pack.getSound("sounds/Hurt").play();
         //object destroyed
         if (amount >= health) {
             points = 0;
             health = 0;
-            destroyed.emit();
-            owner.dispose();
             return true;
         }
         //object damaged 
         else {
-
-            _ctx.pack.getSound("sounds/Hurt").play();
             health -= amount;
             return false;
         }
