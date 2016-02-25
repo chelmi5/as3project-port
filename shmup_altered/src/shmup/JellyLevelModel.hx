@@ -5,6 +5,7 @@ import flambe.Entity;
 import flambe.SpeedAdjuster;
 import flambe.System;
 import flambe.animation.Ease;
+import flambe.animation.Jitter;
 import flambe.display.FillSprite;
 import flambe.display.ImageSprite;
 import flambe.display.PatternSprite;
@@ -52,6 +53,8 @@ class JellyLevelModel extends Component
 
 	override public function onAdded ()
 	{
+        //_ctx.pack.getSound("sounds/LoopingMusic").loop();
+
 		_worldLayer = new Entity();
 		owner.addChild(_worldLayer);
 
@@ -90,6 +93,7 @@ class JellyLevelModel extends Component
             gameoverscript.run(new Sequence([
                 new AnimateTo(worldSpeed.scale, 0, 1.5),
                 new CallFunction(function () {
+                    //_ctx.pack.getSound("sounds/LoopingMusic").dispose();
                     _ctx.showPrompt(_ctx.messages.get("game_over", [score._]), [
                         "Replay", function () {
                             _ctx.enterPlayingScene(false);
@@ -339,6 +343,9 @@ class JellyLevelModel extends Component
 
                 _enemies.splice(i, 1);
                 a.dispose();
+
+                //bS.y.behavior = new Jitter(0.25, 0.25);
+                //bS.x.behavior = new Jitter(0.25, 0.25);
 
                 if(player.get(GameObject).damage(1))
                 {
