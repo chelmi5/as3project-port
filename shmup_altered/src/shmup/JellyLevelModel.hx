@@ -344,6 +344,8 @@ class JellyLevelModel extends Component
                 _enemies.splice(i, 1);
                 a.dispose();
 
+                bS.scaleX.animate(0.25, 1, 0.5, Ease.backOut);
+                bS.scaleY.animate(0.25, 1, 0.5, Ease.backOut);
                 //bS.y.behavior = new Jitter(0.25, 0.25);
                 //bS.x.behavior = new Jitter(0.25, 0.25);
 
